@@ -90,7 +90,7 @@ var rootjQuery,
 			}
 
 		// HANDLE: $(DOMElement)
-		} else if ( selector.nodeType ) {
+		} else if ( selector.nodeType ) {  // @ 如果传入的selector是原生DOM节点
 			this[0] = selector;
 			this.length = 1;
 			return this;
