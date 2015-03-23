@@ -64,8 +64,8 @@ jQuery.extend({
  */
 function completed() {
 	document.removeEventListener( "DOMContentLoaded", completed, false );
-	window.removeEventListener( "load", completed, false );
-	jQuery.ready();
+	window.removeEventListener( "load", completed, false );  // @ 若 DOMContentLoaded 正常触发，则此监听器会被清除，事件处理函数不会二次执行。
+	jQuery.ready();  // @ 核心，执行事件处理函数。
 }
 
 jQuery.ready.promise = function( obj ) {
@@ -78,17 +78,17 @@ jQuery.ready.promise = function( obj ) {
 		// We once tried to use readyState "interactive" here,
 		// but it caused issues like the one
 		// discovered by ChrisS here: http://bugs.jquery.com/ticket/12282#comment:15
-		if ( document.readyState === "complete" ) {
+		if ( document.readyState === "complete" ) {  // @ document.readyState：当 document 文档正在加载时，返回 "loading"，当文档结束渲染但在加载内嵌资源时，返回 "interactive"，当文档加载完成时，返回 "complete"。
 			// Handle it asynchronously to allow scripts the opportunity to delay ready
 			setTimeout( jQuery.ready );
 
-		} else {
+		} else {  // @ 若调用 jQuery.ready.promise 时，文档还还没有加载结束。
 
 			// Use the handy event callback
-			document.addEventListener( "DOMContentLoaded", completed, false );
+			document.addEventListener( "DOMContentLoaded", completed, false );  // @ 文档渲染结束，但在加载内嵌资源时，触发 $.ready()。这比 window.onload 发生的要早，是 $(document).ready() 与 window.onload 的重要区别。
 
 			// A fallback to window.onload, that will always work
-			window.addEventListener( "load", completed, false );
+			window.addEventListener( "load", completed, false );  // @ 如果上面的监听失效，则退化成 window.onload，保证事件处理函数能被执行。（若 DOMContentLoaded 正常触发，则此监听器会被清除，事件处理函数不会二次执行。）
 		}
 	}
 	return readyList.promise( obj );

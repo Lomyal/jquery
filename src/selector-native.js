@@ -30,7 +30,7 @@ define([
  */
 
 var hasDuplicate,
-	matches = documentElement.matches ||
+	matches = documentElement.matches ||  // @ Selectors API 为 Element 类型新增的方法。这个 || 的写法比 PJWD3 中 P288 使用的 if-else 写法简洁。
 		documentElement.webkitMatchesSelector ||
 		documentElement.mozMatchesSelector ||
 		documentElement.oMatchesSelector ||
@@ -94,7 +94,7 @@ jQuery.extend({
 				}
 			}
 		} else {
-			jQuery.merge( results, context.querySelectorAll(selector) );
+			jQuery.merge( results, context.querySelectorAll(selector) );  // @ 调用SelectorsAPI的原生方法
 		}
 
 		return results;

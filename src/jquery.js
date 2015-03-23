@@ -1,7 +1,7 @@
 define([
 	"./core",
 	"./selector",
-	"./traversing",
+	"./traversing",  // @ 加载此模块时，第一次加载了 core/init 模块，因为其中使用了 jQuery() 构造 jQuery 对象
 	"./callbacks",
 	"./deferred",
 	"./core/ready",
