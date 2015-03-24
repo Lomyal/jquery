@@ -17,7 +17,7 @@ var
 	jQuery = function( selector, context ) {
 		// The jQuery object is actually just the init constructor 'enhanced'
 		// Need init if jQuery is called (just allow error to be thrown if not included)
-		return new jQuery.fn.init( selector, context );
+		return new jQuery.fn.init( selector, context );  // @ 虽然加载 core 模块时尚未加载 core/init 模块，但在 core 中，此行只是定义，不是执行，所以对 core/init 没有依赖关系。
 	},
 
 	// Support: Android<4.1, IE<9
@@ -37,7 +37,7 @@ jQuery.fn = jQuery.prototype = {
 	// The current version of jQuery being used
 	jquery: version,
 
-	constructor: jQuery,
+	constructor: jQuery,  // @ 因为给 jQuery.prototype 赋了新值，所以需要重建原型中指向构造函数的 constructor 属性
 
 	// Start with an empty selector
 	selector: "",
@@ -46,7 +46,7 @@ jQuery.fn = jQuery.prototype = {
 	length: 0,
 
 	toArray: function() {
-		return slice.call( this );
+		return slice.call( this );  // @ slice 即 [].slice() 或 Array.prototype.slice()，可以将“类数组”转换为“数组”
 	},
 
 	// Get the Nth element in the matched element set OR
@@ -121,17 +121,17 @@ jQuery.fn = jQuery.prototype = {
 jQuery.extend = jQuery.fn.extend = function() {
 	var src, copyIsArray, copy, name, options, clone,
 		target = arguments[0] || {},
-		i = 1,
-		length = arguments.length,
-		deep = false;
+		i = 1,  // @ i 表示第一个“次扩展对象”的位置，用于对齐“主扩展对象”是第二个参数、是第一个参数以及不在参数列表中这三种情况（默认“主扩展对象”是第一个参数，i 指向第二个参数）
+		length = arguments.length,  // @ 对于不限定参数个数的函数的处理技巧
+		deep = false;  // @ 默认是浅拷贝
 
 	// Handle a deep copy situation
-	if ( typeof target === "boolean" ) {
+	if ( typeof target === "boolean" ) {  // @ 深拷贝（target 为 false 时，也是浅拷贝）
 		deep = target;
 
 		// skip the boolean and the target
 		target = arguments[ i ] || {};
-		i++;
+		i++;  // @ “主扩展对象”是第二个参数，i 指向第三个参数
 	}
 
 	// Handle case when target is a string or something (possible in deep copy)
@@ -140,14 +140,14 @@ jQuery.extend = jQuery.fn.extend = function() {
 	}
 
 	// extend jQuery itself if only one argument is passed
-	if ( i === length ) {
-		target = this;
-		i--;
+	if ( i === length ) {  // @ 扩展为函数提供作用域的对象自身
+		target = this;  // @ 这里使用了 this，那么如果调用 $.extend() 会扩展 jQuery 构造函数对象（静态方法），如果调用 $.fn.extend() 会扩展 jQuery 原型对象（原型方法），如果调用$(XXX).extend() 则会扩展 jQuery 实例对象（实例方法）。
+		i--;  // @ “主扩展对象”不在参数列表中，i 指向第一个参数
 	}
 
 	for ( ; i < length; i++ ) {
 		// Only deal with non-null/undefined values
-		if ( (options = arguments[ i ]) != null ) {
+		if ( (options = arguments[ i ]) != null ) {  // @ 注意这里使用 != （而不是 !== ）判断，当左边是 null 或 undefined 时都会返回 false
 			// Extend the base object
 			for ( name in options ) {
 				src = target[ name ];
@@ -159,20 +159,20 @@ jQuery.extend = jQuery.fn.extend = function() {
 				}
 
 				// Recurse if we're merging plain objects or arrays
-				if ( deep && copy && ( jQuery.isPlainObject(copy) || (copyIsArray = jQuery.isArray(copy)) ) ) {
-					if ( copyIsArray ) {
+				if ( deep && copy && ( jQuery.isPlainObject(copy) || (copyIsArray = jQuery.isArray(copy)) ) ) {  // @ 如果深拷贝打开，且当前“次扩展对象”中的某 value 是对象或数组，则递归进入下一层复制
+					if ( copyIsArray ) {  // @ 对 || 短路特性的应用，用以判断到底是第一个条件被满足还是第二个条件被满足（避免再次调用函数判断 copy 的类型）
 						copyIsArray = false;
-						clone = src && jQuery.isArray(src) ? src : [];
+						clone = src && jQuery.isArray(src) ? src : [];  // @ 如果当前“主扩展对象”中的 value 也是数组（与“次扩展对象”中的 value 类型相同），扩展它，否则覆盖它
 
 					} else {
-						clone = src && jQuery.isPlainObject(src) ? src : {};
+						clone = src && jQuery.isPlainObject(src) ? src : {};  // @ 如果当前“主扩展对象”中的 value 也是对象（与“次扩展对象”中的 value 类型相同），扩展它，否则覆盖它
 					}
 
 					// Never move original objects, clone them
-					target[ name ] = jQuery.extend( deep, clone, copy );
+					target[ name ] = jQuery.extend( deep, clone, copy );  // @ 注意此处等号左侧若写 src 是没有期望效果的，不会改变 target
 
 				// Don't bring in undefined values
-				} else if ( copy !== undefined ) {
+				} else if ( copy !== undefined ) {  // @ 浅拷贝，或是深拷贝中“非对象非数组” value 的拷贝
 					target[ name ] = copy;
 				}
 			}
@@ -183,7 +183,7 @@ jQuery.extend = jQuery.fn.extend = function() {
 	return target;
 };
 
-jQuery.extend({
+jQuery.extend({  // @ 第一次调用 extend()，恰好（故意）不是深拷贝，所以可以趁机定义 extend() 中用到的（且尚未定义的） jQuery.isPlainObject() 和 jQuery.isArray()
 	// Unique for each copy of jQuery on the page
 	expando: "jQuery" + ( version + Math.random() ).replace( /\D/g, "" ),
 
@@ -200,35 +200,35 @@ jQuery.extend({
 	// Since version 1.3, DOM methods and functions like alert
 	// aren't supported. They return false on IE (#2968).
 	isFunction: function( obj ) {
-		return jQuery.type(obj) === "function";
+		return jQuery.type(obj) === "function";  // @ easy
 	},
 
-	isArray: Array.isArray || function( obj ) {
-		return jQuery.type(obj) === "array";
+	isArray: Array.isArray || function( obj ) {  // @ 若原生JS实现了 isArray，则使用原生方法
+		return jQuery.type(obj) === "array";  // @ 否则使用 jQuery.type() 判断
 	},
 
 	isWindow: function( obj ) {
 		/* jshint eqeqeq: false */
-		return obj != null && obj == obj.window;
+		return obj != null && obj == obj.window;  // @ window 中保存了对自身的引用！（window === window.window，且注意 obj 非空的判断，可防止 obj 为空时 obj.window 报错 ）
 	},
 
-	isNumeric: function( obj ) {
+	isNumeric: function( obj ) {  // @ 判断是否是【数字】或【数字字符串】
 		// parseFloat NaNs numeric-cast false positives (null|true|false|"")
 		// ...but misinterprets leading-number strings, particularly hex literals ("0x...")
 		// subtraction forces infinities to NaN
 		// adding 1 corrects loss of precision from parseFloat (#15100)
-		return !jQuery.isArray( obj ) && (obj - parseFloat( obj ) + 1) >= 0;
+		return !jQuery.isArray( obj ) && (obj - parseFloat( obj ) + 1) >= 0;  // @  parseFloat() 会解析传入数组的第一个元素，所以要先屏蔽掉 obj 是数组的这种情况
 	},
 
 	isEmptyObject: function( obj ) {
 		var name;
-		for ( name in obj ) {
+		for ( name in obj ) {  // @ 若为空对象，则此循环内语句一次都不会执行
 			return false;
 		}
 		return true;
 	},
 
-	isPlainObject: function( obj ) {
+	isPlainObject: function( obj ) {  // @ 注意“朴素对象”的定义，Array、Date等不是朴素对象
 		var key;
 
 		// Must be an Object.
@@ -236,13 +236,13 @@ jQuery.extend({
 		// Make sure that DOM nodes and window objects don't pass through, as well
 		if ( !obj || jQuery.type(obj) !== "object" || obj.nodeType || jQuery.isWindow( obj ) ) {
 			return false;
-		}
+		}  // @ 现在还不能确定 obj 是否是 Object 的直接实例。（有可能是 Object 子类型的实例，这种情况 jQuery.type( obj ) 也会返回 "object"）
 
 		try {
 			// Not own constructor property must be Object
 			if ( obj.constructor &&
 				!hasOwn.call(obj, "constructor") &&
-				!hasOwn.call(obj.constructor.prototype, "isPrototypeOf") ) {
+				!hasOwn.call(obj.constructor.prototype, "isPrototypeOf") ) {  // @ isPrototypeOf() 是存在于 Object.prototype 中的。检测此条可判断 obj 是 Object 的直接实例还是 Object 子类型的实例。
 				return false;
 			}
 		} catch ( e ) {
@@ -266,12 +266,12 @@ jQuery.extend({
 	},
 
 	type: function( obj ) {
-		if ( obj == null ) {
-			return obj + "";
+		if ( obj == null ) { // @ 若 obj 是 undefined 或 null
+			return obj + "";  // @ 则将其转换成字符串后输出
 		}
-		return typeof obj === "object" || typeof obj === "function" ?
-			class2type[ toString.call(obj) ] || "object" :
-			typeof obj;
+		return typeof obj === "object" || typeof obj === "function" ?  // @ 若 obj 是引用类型（包括三种包装类型 Number、String、Boolean）
+			class2type[ toString.call(obj) ] || "object" :  // @ 则指出其具体的类型（number、string、boolean、date、array、regexp、error、function、object）
+			typeof obj;  // @ 若 obj 是除 undefined 和 null 之外的基本类型，则直接返回其 typeof 的值（number、string、boolean）
 	},
 
 	// Evaluates a script in a global context
@@ -512,7 +512,7 @@ jQuery.extend({
 
 // Populate the class2type map
 jQuery.each("Boolean Number String Function Array Date RegExp Object Error".split(" "), function(i, name) {
-	class2type[ "[object " + name + "]" ] = name.toLowerCase();
+	class2type[ "[object " + name + "]" ] = name.toLowerCase();  // @ 这样 class2type 中就保存了 toString() 方法返回结果（[object Xxx]）到 xxx 的映射
 });
 
 function isArraylike( obj ) {

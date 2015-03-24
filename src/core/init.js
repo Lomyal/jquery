@@ -16,22 +16,22 @@ var rootjQuery,
 	// Strict HTML recognition (#11290: must start with <)
 	rquickExpr = /^(?:\s*(<[\w\W]+>)[^>]*|#([\w-]*))$/,
 
-	init = jQuery.fn.init = function( selector, context ) {
+	init = jQuery.fn.init = function( selector, context ) {  // @ this指向core.js中调用此构造函数时new出来的对象。构造函数都是这个套路。
 		var match, elem;
 
 		// HANDLE: $(""), $(null), $(undefined), $(false)
 		if ( !selector ) {
-			return this;
+			return this;  // @ 直接返回空实例。但由于此实例的原型是jQuery.fn，所以其上可访问所有的jQuery原型属性。
 		}
 
 		// Handle HTML strings
 		if ( typeof selector === "string" ) {
 			if ( selector.charAt(0) === "<" && selector.charAt( selector.length - 1 ) === ">" && selector.length >= 3 ) {
 				// Assume that strings that start and end with <> are HTML and skip the regex check
-				match = [ null, selector, null ];
+				match = [ null, selector, null ];  // @ match[1]中存放html的第一个标签
 
 			} else {
-				match = rquickExpr.exec( selector );
+				match = rquickExpr.exec( selector );  // @ match[1]中存放html的第一个标签，match[2]中存放id选择器名称
 			}
 
 			// Match html or make sure no context is specified for #id
@@ -67,7 +67,7 @@ var rootjQuery,
 
 				// HANDLE: $(#id)
 				} else {
-					elem = document.getElementById( match[2] );
+					elem = document.getElementById( match[2] );  // @ 对于id选择器，直接调用原生方法getElementById，所以效率很高。
 
 					// Check parentNode to catch when Blackberry 4.6 returns
 					// nodes that are no longer in the document #6963
@@ -99,12 +99,12 @@ var rootjQuery,
 			}
 
 		// HANDLE: $(DOMElement)
-		} else if ( selector.nodeType ) {
+		} else if ( selector.nodeType ) {  // @ 如果传入的 selector 是原生 DOM 节点（我们经常在事件处理函数中用的 $(this) 写法就是这种情况）。
 			this.context = this[0] = selector;
 			this.length = 1;
 			return this;
 
-		// HANDLE: $(function)
+		// HANDLE: $(function)  // @ 这是 $(function(){ ... }) 等价于 $(document).ready(function(){ ... }) 的原因。
 		// Shortcut for document ready
 		} else if ( jQuery.isFunction( selector ) ) {
 			return typeof rootjQuery.ready !== "undefined" ?

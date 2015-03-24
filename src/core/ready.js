@@ -96,20 +96,20 @@ jQuery.ready.promise = function( obj ) {
 		// Catch cases where $(document).ready() is called after the browser event has already occurred.
 		// we once tried to use readyState "interactive" here, but it caused issues like the one
 		// discovered by ChrisS here: http://bugs.jquery.com/ticket/12282#comment:15
-		if ( document.readyState === "complete" ) {
+		if ( document.readyState === "complete" ) {  // @ document.readyState：当 document 文档正在加载时，返回 "loading"，当文档结束渲染但在加载内嵌资源时，返回 "interactive"，当文档加载完成时，返回 "complete"。
 			// Handle it asynchronously to allow scripts the opportunity to delay ready
 			setTimeout( jQuery.ready );
 
 		// Standards-based browsers support DOMContentLoaded
-		} else if ( document.addEventListener ) {
+		} else if ( document.addEventListener ) {  // @ 若调用 jQuery.ready.promise 时，文档还还没有加载结束。非IE。
 			// Use the handy event callback
-			document.addEventListener( "DOMContentLoaded", completed, false );
+			document.addEventListener( "DOMContentLoaded", completed, false );  // @ 文档渲染结束，但在加载内嵌资源时，触发 $.ready()。这比 window.onload 发生的要早，是 $(document).ready() 与 window.onload 的重要区别。
 
 			// A fallback to window.onload, that will always work
-			window.addEventListener( "load", completed, false );
+			window.addEventListener( "load", completed, false );  // @ 如果上面的监听失效，则退化成 window.onload，保证事件处理函数能被执行。（若 DOMContentLoaded 正常触发，则此监听器会被清除，事件处理函数不会二次执行。）
 
 		// If IE event model is used
-		} else {
+		} else {  // @ 若调用 jQuery.ready.promise 时，文档还还没有加载结束。IE。
 			// Ensure firing before onload, maybe late but safe also for iframes
 			document.attachEvent( "onreadystatechange", completed );
 
