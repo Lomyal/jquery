@@ -39,14 +39,14 @@ jQuery.event = {
 
 	global: {},
 
-	add: function( elem, types, handler, data, selector ) {
+	add: function( elem, types, handler, data, selector ) {  // @ 这里 elem 是一个 DOM Node
 		var tmp, events, t, handleObjIn,
 			special, eventHandle, handleObj,
 			handlers, type, namespaces, origType,
-			elemData = jQuery._data( elem );
+			elemData = jQuery._data( elem );  // @ 之所以不用 $.acceptData() 检查，是因为 $._data() 在查询或创建过程中就顺带完成了检查
 
 		// Don't attach events to noData or text/comment nodes (but allow plain objects)
-		if ( !elemData ) {
+		if ( !elemData ) {  // @ 原理见 src/data/accepts.js
 			return;
 		}
 
@@ -529,7 +529,7 @@ jQuery.event = {
 
 			// Add which for key events
 			if ( event.which == null ) {
-				event.which = original.charCode != null ? original.charCode : original.keyCode;
+				event.which = original.charCode != null ? original.charCode : original.keyCode;  // @ keyCode 在 keydown 和 keyup 事件触发时有正确的值，charCode 在 keypress 触发时有值
 			}
 
 			return event;
@@ -561,7 +561,7 @@ jQuery.event = {
 			// Add which for click: 1 === left; 2 === middle; 3 === right
 			// Note: button is not normalized, so don't use it
 			if ( !event.which && button !== undefined ) {
-				event.which = ( button & 1 ? 1 : ( button & 2 ? 3 : ( button & 4 ? 2 : 0 ) ) );
+				event.which = ( button & 1 ? 1 : ( button & 2 ? 3 : ( button & 4 ? 2 : 0 ) ) );  // @ 规范化鼠标按钮编号。在原生事件对象中，鼠标按钮号在 e.button 中。在 jQuery 事件对象中被统一到 event.which 中（ 0 - 7 恰好不在 keyCode 中）。
 			}
 
 			return event;
@@ -670,16 +670,16 @@ jQuery.removeEvent = document.removeEventListener ?
 		}
 	};
 
-jQuery.Event = function( src, props ) {
+jQuery.Event = function( src, props ) {  // @ （jQuery 事件对象）的构造函数
 	// Allow instantiation without the 'new' keyword
-	if ( !(this instanceof jQuery.Event) ) {
+	if ( !(this instanceof jQuery.Event) ) {  // @ 注意这个技巧！这样处理后，在创建 jQuery 事件对象时用不用 new 就完全一样了。
 		return new jQuery.Event( src, props );
 	}
 
 	// Event object
-	if ( src && src.type ) {
-		this.originalEvent = src;
-		this.type = src.type;
+	if ( src && src.type ) {  // @ 传入原生事件对象的情况
+		this.originalEvent = src;  // @ 原生事件对象
+		this.type = src.type;  // @ 原生事件对象的类型
 
 		// Events bubbling up the document may have been marked as prevented
 		// by a handler lower down the tree; reflect the correct value.
@@ -691,7 +691,7 @@ jQuery.Event = function( src, props ) {
 			returnFalse;
 
 	// Event type
-	} else {
+	} else {  // @ 传入事件类型的情况
 		this.type = src;
 	}
 
@@ -701,7 +701,7 @@ jQuery.Event = function( src, props ) {
 	}
 
 	// Create a timestamp if incoming event doesn't have one
-	this.timeStamp = src && src.timeStamp || jQuery.now();
+	this.timeStamp = src && src.timeStamp || jQuery.now();  // @ 注意 && 的优先级高于 ||
 
 	// Mark it as fixed
 	this[ jQuery.expando ] = true;
@@ -754,7 +754,7 @@ jQuery.Event.prototype = {
 		this.isImmediatePropagationStopped = returnTrue;
 
 		if ( e && e.stopImmediatePropagation ) {
-			e.stopImmediatePropagation();
+			e.stopImmediatePropagation();  // @ 阻止当前事件的冒泡行为 并且 阻止当前事件所在元素上的所有相同类型事件的事件处理函数的继续执行.
 		}
 
 		this.stopPropagation();
@@ -930,7 +930,7 @@ if ( !support.focusinBubbles ) {
 	});
 }
 
-jQuery.fn.extend({
+jQuery.fn.extend({  // @ 外部接口定义
 
 	on: function( types, selector, data, fn, /*INTERNAL*/ one ) {
 		var type, origFn;
@@ -944,7 +944,7 @@ jQuery.fn.extend({
 				selector = undefined;
 			}
 			for ( type in types ) {
-				this.on( type, selector, data, types[ type ], one );
+				this.on( type, selector, data, types[ type ], one );  // @ 对于指定了一组（事件-处理函数）对的调用方式，逐一添加这些监听器
 			}
 			return this;
 		}
@@ -954,7 +954,7 @@ jQuery.fn.extend({
 			fn = selector;
 			data = selector = undefined;
 		} else if ( fn == null ) {
-			if ( typeof selector === "string" ) {
+			if ( typeof selector === "string" ) {  // @ 有 selector 传入，要使用事件委托
 				// ( types, selector, fn )
 				fn = data;
 				data = undefined;
@@ -971,7 +971,7 @@ jQuery.fn.extend({
 			return this;
 		}
 
-		if ( one === 1 ) {
+		if ( one === 1 ) {  // @ 对于只触发一次的监听器，它的处理函数是：先解绑监听器，再调用原处理函数
 			origFn = fn;
 			fn = function( event ) {
 				// Can use an empty set, since event contains the info
@@ -981,8 +981,8 @@ jQuery.fn.extend({
 			// Use same guid so caller can remove using origFn
 			fn.guid = origFn.guid || ( origFn.guid = jQuery.guid++ );
 		}
-		return this.each( function() {
-			jQuery.event.add( this, types, fn, data, selector );
+		return this.each( function() {  // @ 对 $ 对象中包裹的所有 DOM Node 注册同样的监听器
+			jQuery.event.add( this, types, fn, data, selector );  // @ 调用内部方法add，注册监听器
 		});
 	},
 	one: function( types, selector, data, fn ) {

@@ -62,15 +62,15 @@ function internalData( elem, name, data, pvt /* Internal Use Only */ ) {
 	}
 
 	var ret, thisCache,
-		internalKey = jQuery.expando,
+		internalKey = jQuery.expando,  // @ 当前 jQuery 构造函数的标识符
 
-		// We have to handle DOM nodes and JS objects differently because IE6-7
+		// We have to handle DOM nodes and JS objects differently because IE6-7  // @ 注意这个原因，并不仅仅因为 IE 是用 COM 对象而非 JS 对象实现的 DOM Node
 		// can't GC object references properly across the DOM-JS boundary
-		isNode = elem.nodeType,
+		isNode = elem.nodeType,  // @ 判断是否是 DOM Node
 
 		// Only DOM nodes need the global jQuery cache; JS object data is
 		// attached directly to the object so GC can occur automatically
-		cache = isNode ? jQuery.cache : elem,
+		cache = isNode ? jQuery.cache : elem,  // @ 对于 DOM Node，把数据放在全局的 $.cache[guid] 中，DOM Node 中只保存名为 jQuery.expando 取值（如 jQuery1111010536634526215494） 的属性，其值是 guid。对于 JS 对象，直接把数据保存在 elem[jQuery.expando] 中。
 
 		// Only defining an ID for JS objects if its cache already exists allows
 		// the code to shortcut on the same path as a DOM node with no cache
@@ -78,7 +78,7 @@ function internalData( elem, name, data, pvt /* Internal Use Only */ ) {
 
 	// Avoid doing any more work than we need to when trying to get data on an
 	// object that has no data at all
-	if ( (!id || !cache[id] || (!pvt && !cache[id].data)) && data === undefined && typeof name === "string" ) {
+	if ( (!id || !cache[id] || (!pvt && !cache[id].data)) && data === undefined && typeof name === "string" ) {  // @ 当操作是读数据时，对象又没有数据时，直接返回
 		return;
 	}
 
@@ -95,15 +95,15 @@ function internalData( elem, name, data, pvt /* Internal Use Only */ ) {
 	if ( !cache[ id ] ) {
 		// Avoid exposing jQuery metadata on plain JS objects when the object
 		// is serialized using JSON.stringify
-		cache[ id ] = isNode ? {} : { toJSON: jQuery.noop };
+		cache[ id ] = isNode ? {} : { toJSON: jQuery.noop };  // @ 1、在调用 JSON.stringify 时，若某属性 p 下有 toJSON 方法，则此属性 p 相应的 JSON 表示是该 toJSON 方法的返回值。2、若 toJSON 返回 undefined（包括没有返回值），则根本就不在 JSON 表示中显示此属性 p。
 	}
 
 	// An object can be passed to jQuery.data instead of a key/value pair; this gets
 	// shallow copied over onto the existing cache
 	if ( typeof name === "object" || typeof name === "function" ) {
-		if ( pvt ) {
+		if ( pvt ) {  // @ 内部数据
 			cache[ id ] = jQuery.extend( cache[ id ], name );
-		} else {
+		} else {  // @ 用户自定义数据
 			cache[ id ].data = jQuery.extend( cache[ id ].data, name );
 		}
 	}
@@ -118,11 +118,11 @@ function internalData( elem, name, data, pvt /* Internal Use Only */ ) {
 			thisCache.data = {};
 		}
 
-		thisCache = thisCache.data;
+		thisCache = thisCache.data;  // @ 对于内部数据的情况做了 thisCache 引用名的处理，此后便可无差别对待内部数据或用户自定义数据
 	}
 
 	if ( data !== undefined ) {
-		thisCache[ jQuery.camelCase( name ) ] = data;
+		thisCache[ jQuery.camelCase( name ) ] = data;  // @ 存储数据。name 都转换成驼峰式。
 	}
 
 	// Check for both converted-to-camel and non-converted data property names
@@ -136,13 +136,13 @@ function internalData( elem, name, data, pvt /* Internal Use Only */ ) {
 		if ( ret == null ) {
 
 			// Try to find the camelCased property
-			ret = thisCache[ jQuery.camelCase( name ) ];
+			ret = thisCache[ jQuery.camelCase( name ) ];  // @ 由于做了这个查询时和上面那个存储时的 camelCase 处理，所以某个驼峰命名和任何能被转换成这个驼峰命名都是等价的
 		}
 	} else {
 		ret = thisCache;
 	}
 
-	return ret;
+	return ret;  // @ 不论是查询还是存储，都返回相应数据
 }
 
 function internalRemoveData( elem, name, pvt ) {
@@ -236,7 +236,7 @@ function internalRemoveData( elem, name, pvt ) {
 }
 
 jQuery.extend({
-	cache: {},
+	cache: {},  // @ 全局缓存。全局是相对于当前 jQuery 构造函数来讲的。
 
 	// The following elements (space-suffixed to avoid Object.prototype collisions)
 	// throw uncatchable exceptions if you attempt to set expando properties
@@ -260,7 +260,7 @@ jQuery.extend({
 		return internalRemoveData( elem, name );
 	},
 
-	// For internal use only.
+	// For internal use only.  // @ 事实上 jQuery 用户也可“强行”调用此函数
 	_data: function( elem, name, data ) {
 		return internalData( elem, name, data, true );
 	},

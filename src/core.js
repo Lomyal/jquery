@@ -80,8 +80,8 @@ jQuery.fn = jQuery.prototype = {
 	// (You can seed the arguments with an array of args, but this is
 	// only used internally.)
 	each: function( callback, args ) {
-		return jQuery.each( this, callback, args );
-	},
+		return jQuery.each( this, callback, args );  // @ 简单地在 this 所指的对象（一般是 jQuery 对象）上调用 $.each() 方法（callback 中的 this 指向这里 this 指向对象的正在被遍历的属性）
+	},  // @ 由于 jQuery 对象是可用下标遍历的，所以在 this 指向 jQuery 对象的情况下 jQuery.each() 会走 arrayLike 的那条分支
 
 	map: function( callback ) {
 		return this.pushStack( jQuery.map(this, function( elem, i ) {
@@ -185,7 +185,7 @@ jQuery.extend = jQuery.fn.extend = function() {
 
 jQuery.extend({  // @ 第一次调用 extend()，恰好（故意）不是深拷贝，所以可以趁机定义 extend() 中用到的（且尚未定义的） jQuery.isPlainObject() 和 jQuery.isArray()
 	// Unique for each copy of jQuery on the page
-	expando: "jQuery" + ( version + Math.random() ).replace( /\D/g, "" ),
+	expando: "jQuery" + ( version + Math.random() ).replace( /\D/g, "" ),  // @ 用于标识页面中的此 jQuery 构造函数对象。不同于 guid ，此值不会改变。
 
 	// Assume jQuery is ready without the ready module
 	isReady: true,
@@ -303,7 +303,7 @@ jQuery.extend({  // @ 第一次调用 extend()，恰好（故意）不是深拷�
 		var value,
 			i = 0,
 			length = obj.length,
-			isArray = isArraylike( obj );
+			isArray = isArraylike( obj );  // @ 只要是可用数字下标遍历的对象，都看做 arrayLike
 
 		if ( args ) {
 			if ( isArray ) {
@@ -326,17 +326,17 @@ jQuery.extend({  // @ 第一次调用 extend()，恰好（故意）不是深拷�
 
 		// A special, fast, case for the most common use of each
 		} else {
-			if ( isArray ) {
+			if ( isArray ) { // @ 若可用下标遍历，则用下标
 				for ( ; i < length; i++ ) {
-					value = callback.call( obj[ i ], i, obj[ i ] );
+					value = callback.call( obj[ i ], i, obj[ i ] );  // @ 注意：callback 内的 this 是当前遍历到的属性的值
 
-					if ( value === false ) {
+					if ( value === false ) {  // @ 若 callback 返回 false，可立即结束遍历。（给 callback 的编写者一定的发挥空间）
 						break;
 					}
 				}
-			} else {
+			} else { // @ 若不可用下标遍历，则用属性名
 				for ( i in obj ) {
-					value = callback.call( obj[ i ], i, obj[ i ] );
+					value = callback.call( obj[ i ], i, obj[ i ] );  // @ 注意：callback 内的 this 是当前遍历到的属性的值
 
 					if ( value === false ) {
 						break;
@@ -345,7 +345,7 @@ jQuery.extend({  // @ 第一次调用 extend()，恰好（故意）不是深拷�
 			}
 		}
 
-		return obj;
+		return obj;  // @ 返回被遍历的对象本身
 	},
 
 	// Support: Android<4.1, IE<9
@@ -469,7 +469,7 @@ jQuery.extend({  // @ 第一次调用 extend()，恰好（故意）不是深拷�
 		return concat.apply( [], ret );
 	},
 
-	// A global GUID counter for objects
+	// A global GUID counter for objects // @ Globally Unique Identifier 全局唯一标识符，代码中任何需要用到 guid 的地方都可从此获取。（jQuery.guid++）。这里的 global 对应当前的 jQuery 构造函数对象。
 	guid: 1,
 
 	// Bind a function to a context, optionally partially applying any
@@ -515,20 +515,20 @@ jQuery.each("Boolean Number String Function Array Date RegExp Object Error".spli
 	class2type[ "[object " + name + "]" ] = name.toLowerCase();  // @ 这样 class2type 中就保存了 toString() 方法返回结果（[object Xxx]）到 xxx 的映射
 });
 
-function isArraylike( obj ) {
+function isArraylike( obj ) {  // @ 只要是可用数字下标遍历的对象，都看做 arrayLike
 	var length = obj.length,
 		type = jQuery.type( obj );
 
-	if ( type === "function" || jQuery.isWindow( obj ) ) {
+	if ( type === "function" || jQuery.isWindow( obj ) ) {  // @ Function 对象虽然有 length 属性（代表函数定义时写的具名参数的个数。另：function 中 arguments.length 的含义是调用时实际传入的参数个数），但不能用数字下标遍历，所以返回 false
 		return false;
 	}
 
-	if ( obj.nodeType === 1 && length ) {
+	if ( obj.nodeType === 1 && length ) {  // @ 对于有 length 属性（且 length 不为零）的 HTMLElement 类型的 Node，返回 true。（如表单元素form，其类型是 继承了 HTMLElement 的 HTMLFormElement，其 length 含义是表单中控件的数量）
 		return true;
 	}
 
 	return type === "array" || length === 0 ||
-		typeof length === "number" && length > 0 && ( length - 1 ) in obj;
+		typeof length === "number" && length > 0 && ( length - 1 ) in obj;  // @ 返回 true 的情况：1、是 array；2、不是 array，但 length 为 0；3、不是 array，length 不为零（是数、且大于 0），且可以用 obj[length - 1] 取出某些东西
 }
 
 return jQuery;
