@@ -6,7 +6,7 @@ define([
 
 // Create the request object
 // (This is still attached to ajaxSettings for backward compatibility)
-jQuery.ajaxSettings.xhr = window.ActiveXObject !== undefined ?
+jQuery.ajaxSettings.xhr = window.ActiveXObject !== undefined ?  // @ 统一 XHR 对象的创建方式（createStandardXHR() 或 createActiveXHR() 会 return 创建好的对象，所以调用 jQuery.ajaxSettings.xhr() 时不需要使用 new）
 	// Support: IE6+
 	function() {
 
@@ -28,7 +28,7 @@ jQuery.ajaxSettings.xhr = window.ActiveXObject !== undefined ?
 
 var xhrId = 0,
 	xhrCallbacks = {},
-	xhrSupported = jQuery.ajaxSettings.xhr();
+	xhrSupported = jQuery.ajaxSettings.xhr();  // @ 实例化一个 xhr 对象，用于能力检测
 
 // Support: IE<10
 // Open requests must be manually aborted on unload (#5280)
@@ -42,15 +42,15 @@ if ( window.attachEvent ) {
 }
 
 // Determine support properties
-support.cors = !!xhrSupported && ( "withCredentials" in xhrSupported );
+support.cors = !!xhrSupported && ( "withCredentials" in xhrSupported );  // @ 检测 xhr 是否支持 CORS 的最简单方式（IE 不是用 ActiveXObject 实现的 CORS，而是用的 XDR，所以 IE 在这里肯定没戏了 ）
 xhrSupported = support.ajax = !!xhrSupported;
 
-// Create transport if the browser can provide an xhr
+// Create transport if the browser can provide an xhr  // @ 如果不支持任何 xhr 对象，则什么都不返回（返回 undefined）
 if ( xhrSupported ) {
 
 	jQuery.ajaxTransport(function( options ) {
 		// Cross domain only allowed if supported through XMLHttpRequest
-		if ( !options.crossDomain || support.cors ) {
+		if ( !options.crossDomain || support.cors ) {  // @ 两种情况下继续执行：1、不跨域；2、跨域，且 xhr 支持 CORS
 
 			var callback;
 

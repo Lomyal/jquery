@@ -60,19 +60,19 @@ try {
 ajaxLocParts = rurl.exec( ajaxLocation.toLowerCase() ) || [];
 
 // Base "constructor" for jQuery.ajaxPrefilter and jQuery.ajaxTransport
-function addToPrefiltersOrTransports( structure ) {
+function addToPrefiltersOrTransports( structure ) {  // @ $.ajaxPrefilter() 和 $.ajaxTransport() 两者的区别在于传入的容器对象不同。prefilters 和 transports 这两个容器对象全局唯一。
 
 	// dataTypeExpression is optional and defaults to "*"
 	return function( dataTypeExpression, func ) {
 
-		if ( typeof dataTypeExpression !== "string" ) {
+		if ( typeof dataTypeExpression !== "string" ) {  // @ 处理 $.ajaxPrefilter() 单参数的情况。而对于 $.ajaxTransport() 来说，两个参数都是必须的。
 			func = dataTypeExpression;
-			dataTypeExpression = "*";
+			dataTypeExpression = "*";  // @ “*” 表示该 Prefilter 对所有类型都有效，对应 $.ajaxPrefilter() 单参数（只传入一个函数）的情况。
 		}
 
 		var dataType,
 			i = 0,
-			dataTypes = dataTypeExpression.toLowerCase().match( rnotwhite ) || [];
+			dataTypes = dataTypeExpression.toLowerCase().match( rnotwhite ) || [];  // @ 对于 $.ajaxTransport() 来说，dataTypes 中永远只有一个元素。
 
 		if ( jQuery.isFunction( func ) ) {
 			// For each dataType in the dataTypeExpression
@@ -83,7 +83,7 @@ function addToPrefiltersOrTransports( structure ) {
 					(structure[ dataType ] = structure[ dataType ] || []).unshift( func );
 
 				// Otherwise append
-				} else {
+				} else {  // @ 对于 $.ajaxTransport() 来说，总是走这一分支
 					(structure[ dataType ] = structure[ dataType ] || []).push( func );
 				}
 			}
@@ -119,20 +119,20 @@ function inspectPrefiltersOrTransports( structure, options, originalOptions, jqX
 // A special extend for ajax options
 // that takes "flat" options (not to be deep extended)
 // Fixes #9887
-function ajaxExtend( target, src ) {
+function ajaxExtend( target, src ) {  // @ 此函数实现了通过配置 jQuery.ajaxSettings.flatOptions 进行有深有浅的拷贝。
 	var deep, key,
 		flatOptions = jQuery.ajaxSettings.flatOptions || {};
 
 	for ( key in src ) {
 		if ( src[ key ] !== undefined ) {
-			( flatOptions[ key ] ? target : ( deep || (deep = {}) ) )[ key ] = src[ key ];
+			( flatOptions[ key ] ? target : ( deep || (deep = {}) ) )[ key ] = src[ key ];  // @ 把需要进行深拷贝的属性收集在 deep 对象中
 		}
 	}
 	if ( deep ) {
-		jQuery.extend( true, target, deep );
+		jQuery.extend( true, target, deep );  // @ 对需要进行深拷贝的属性执行深拷贝
 	}
 
-	return target;
+	return target;  // @ 返回融合后的目标对象
 }
 
 /* Handles responses to an ajax request:
@@ -378,7 +378,7 @@ jQuery.extend({
 	ajaxTransport: addToPrefiltersOrTransports( transports ),
 
 	// Main method
-	ajax: function( url, options ) {
+	ajax: function( url, options ) {  // @ 一般来讲 url 是字符串，options 是一个包含多个属性的对象。
 
 		// If url is an object, simulate pre-1.5 signature
 		if ( typeof url === "object" ) {
@@ -387,7 +387,7 @@ jQuery.extend({
 		}
 
 		// Force options to be an object
-		options = options || {};
+		options = options || {};  // @ 应对 options 为 null 或 undefined 的情况
 
 		var // Cross-domain detection vars
 			parts,
@@ -407,9 +407,9 @@ jQuery.extend({
 			// Response headers
 			responseHeaders,
 			// Create the final options object
-			s = jQuery.ajaxSetup( {}, options ),
+			s = jQuery.ajaxSetup( {}, options ),  // @ s 是当前配置，其在默认配置（程序员可能在此之前更改过默认配置）基础上根据传入的配置 options 对其进行了修改。
 			// Callbacks context
-			callbackContext = s.context || s,
+			callbackContext = s.context || s,  // @ 若没有配置 context，则回调函数的 context 就是 $.ajaxSettings
 			// Context for global events is callbackContext if it is a DOM node or jQuery collection
 			globalEventContext = s.context && ( callbackContext.nodeType || callbackContext.jquery ) ?
 				jQuery( callbackContext ) :
@@ -426,8 +426,8 @@ jQuery.extend({
 			state = 0,
 			// Default abort message
 			strAbort = "canceled",
-			// Fake xhr
-			jqXHR = {
+			// Fake xhr  // @ jqXHR 是 jQuery 自己构造的 xhr 对象的超集。
+			jqXHR = {  // @ 这里列出的属性不是全部，后续还有一些属性（如 responseText）会被添加进来。
 				readyState: 0,
 
 				// Builds headers hashtable if needed

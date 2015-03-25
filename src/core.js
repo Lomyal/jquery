@@ -373,16 +373,16 @@ jQuery.extend({  // @ 第一次调用 extend()，恰好（故意）不是深拷�
 		return ret;
 	},
 
-	inArray: function( elem, arr, i ) {
+	inArray: function( elem, arr, i ) {  // @ i 的含义是起始位置
 		var len;
 
 		if ( arr ) {
-			if ( indexOf ) {
+			if ( indexOf ) {  // @ 若支持原生方法，则调用原生方法（ECAMScript5）。此 indexOf() 就是 src/var/indexOf.js 模块引入的 Array.prototype.indexOf()
 				return indexOf.call( arr, elem, i );
 			}
 
 			len = arr.length;
-			i = i ? i < 0 ? Math.max( 0, len + i ) : i : 0;
+			i = i ? i < 0 ? Math.max( 0, len + i ) : i : 0;  // @ 这个写法可以处理 i 不存在、i = 0、i 为正数、i 为负数的情况。 注意由于参数中有 i，即便没有传入第三个参数，这句话也不会把 i 声明成全局变量。
 
 			for ( ; i < len; i++ ) {
 				// Skip accessing in sparse arrays
@@ -502,7 +502,7 @@ jQuery.extend({  // @ 第一次调用 extend()，恰好（故意）不是深拷�
 	},
 
 	now: function() {
-		return +( new Date() );
+		return +( new Date() );  // @ 效果等同于 Date.now()，这是为了兼容不支持 now() 方法的浏览器做的处理。
 	},
 
 	// jQuery.support is not used in Core but other projects attach their
