@@ -492,7 +492,7 @@ jQuery.extend({  // @ 第一次调用 extend()，恰好（故意）不是深拷�
 		// Simulated bind
 		args = slice.call( arguments, 2 );
 		proxy = function() {
-			return fn.apply( context || this, args.concat( slice.call( arguments ) ) );
+			return fn.apply( context || this, args.concat( slice.call( arguments ) ) );  // @ 手写 Function.prototype.bind() 的核心
 		};
 
 		// Set the guid of unique handler to the same of original handler, so it can be removed

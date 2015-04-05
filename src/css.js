@@ -89,7 +89,7 @@ function showHide( elements, show ) {
 			// in a stylesheet to whatever the default browser style is
 			// for such an element
 			if ( elem.style.display === "" && isHidden( elem ) ) {
-				values[ index ] = jQuery._data( elem, "olddisplay", defaultDisplay(elem.nodeName) );
+				values[ index ] = jQuery._data( elem, "olddisplay", defaultDisplay(elem.nodeName) );  // @ 记录隐藏前的 display 值，这样在下次显示时就可以做到“精准恢复”
 			}
 		} else {
 			hidden = isHidden( elem );
